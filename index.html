@@ -6,7 +6,7 @@
     <title>Link TVs</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome para ícones -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
@@ -33,38 +33,38 @@
         .header {
             text-align: center;
             margin-bottom: 40px;
-            position: relative;
         }
         
         .header h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: 2.5rem;
-            margin-bottom: 10px;
             background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
         }
         
         .card-container {
             cursor: pointer;
-            transition: all 0.3s ease;
             height: 100%;
-            overflow: hidden;
             position: relative;
             border-radius: 10px;
+            overflow: hidden;
             border: 1px solid rgba(0, 247, 255, 0.2);
             background: rgba(10, 10, 26, 0.7);
-            backdrop-filter: blur(5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .card-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 247, 255, 0.2);
         }
         
         .card-iframe {
             width: 100%;
             height: 200px;
             border: none;
-            background-color: #111;
+            background: #111;
         }
         
         .card-title {
@@ -74,18 +74,9 @@
             right: 0;
             background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
             color: white;
-            padding: 15px 10px 10px;
-            margin: 0;
+            padding: 15px;
             text-align: center;
             font-family: 'Orbitron', sans-serif;
-            font-weight: 500;
-            letter-spacing: 1px;
-            text-shadow: 0 0 5px var(--primary-color);
-        }
-        
-        .card-title i {
-            margin-right: 8px;
-            color: var(--primary-color);
         }
         
         .fullscreen-view {
@@ -94,7 +85,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: var(--dark-color);
+            background: var(--dark-color);
             z-index: 1000;
             display: none;
         }
@@ -110,58 +101,16 @@
             top: 20px;
             right: 20px;
             z-index: 1001;
-            font-size: 24px;
             background: rgba(0, 0, 0, 0.7);
             color: var(--primary-color);
-            border-radius: 50%;
+            border: 1px solid var(--primary-color);
             width: 50px;
             height: 50px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            border: 1px solid var(--primary-color);
-            transition: all 0.3s;
-        }
-        
-        .close-btn:hover {
-            background: var(--primary-color);
-            color: var(--dark-color);
-            transform: rotate(90deg);
-        }
-        
-        .refresh-indicator {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: var(--primary-color);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-family: 'Orbitron', sans-serif;
-            border: 1px solid var(--primary-color);
-            box-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
-        }
-        
-        .iframe-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: calc(100% - 40px);
-            z-index: 1;
-        }
-        
-        .unavailable-message {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #ff5555;
-            font-weight: bold;
-            text-align: center;
-            padding: 20px;
         }
         
         .status-bar {
@@ -170,7 +119,7 @@
             left: 0;
             right: 0;
             height: 5px;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color), var(--primary-color));
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
             background-size: 300% 100%;
             animation: gradientFlow 5s linear infinite;
             z-index: 100;
@@ -179,6 +128,28 @@
         @keyframes gradientFlow {
             0% { background-position: 0% 50%; }
             100% { background-position: 100% 50%; }
+        }
+        
+        .unavailable-message {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff5555;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .screenshot-container {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .screenshot-img {
+            width: 100%;
+            height: auto;
         }
     </style>
 </head>
@@ -189,177 +160,189 @@
             <p>---------------------------------</p>
         </div>
         
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4" id="cards-container">
-            <!-- Cards serão gerados dinamicamente pelo JavaScript -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="cards-container">
+            <!-- Cards serão gerados pelo JavaScript -->
         </div>
     </div>
     
-    <!-- Modal de tela cheia -->
     <div class="fullscreen-view">
         <div class="close-btn">
             <i class="fas fa-times"></i>
         </div>
-        <iframe class="fullscreen-content" src="" frameborder="0" id="fullscreen-iframe"></iframe>
-        <div class="refresh-indicator">Sistema Ativo: <span class="refresh-time">Operacional</span></div>
+        <iframe class="fullscreen-content" id="fullscreen-iframe" frameborder="0"></iframe>
     </div>
     
-    <!-- Barra de status -->
     <div class="status-bar"></div>
     
-    <!-- Bootstrap JS e dependências -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script>
-        // Configuração dos cards com URLs e títulos
+        // Configuração dos cards
         const cardsConfig = [
             {
                 title: "Zabbix",
                 url: "http://45.189.16.9/zabbix.php?action=dashboard.view",
-                icon: "fa-gauge-high"
+                icon: "fa-gauge-high",
+                allowEmbed: true
             },
             {
                 title: "Downdetector",
                 url: "https://downdetector.com.br",
                 icon: "fa-triangle-exclamation",
-                noEmbed: true // Indica que não pode ser embedado
+                allowEmbed: false,
+                screenshot: true
             },
             {
                 title: "Accuweather",
                 url: "https://www.accuweather.com/pt/br/são-luís/44127/weather-forecast/44127",
-                icon: "fa-cloud-sun"
+                icon: "fa-cloud-sun",
+                allowEmbed: true
             }
         ];
         
-        // Variáveis para controle do refresh
-        let refreshInterval;
-        const refreshIntervalTime = 5 * 60 * 1000; // 5 minutos em milissegundos
+        // Armazenamento do estado atual
+        let currentState = {
+            fullscreenUrl: null,
+            iframeStates: {}
+        };
         
-        // Adiciona os cards ao DOM
+        // Carrega o estado salvo
+        function loadState() {
+            const savedState = localStorage.getItem('tvDashboardState');
+            if (savedState) {
+                currentState = JSON.parse(savedState);
+                
+                // Se havia uma tela cheia aberta, restaura
+                if (currentState.fullscreenUrl) {
+                    openFullscreen(currentState.fullscreenUrl);
+                }
+            }
+        }
+        
+        // Salva o estado atual
+        function saveState() {
+            localStorage.setItem('tvDashboardState', JSON.stringify(currentState));
+        }
+        
+        // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
+            loadState();
+            createCards();
+            setupEventListeners();
+            startAutoRefresh();
+        });
+        
+        // Cria os cards dinamicamente
+        function createCards() {
             const container = document.getElementById('cards-container');
             
             cardsConfig.forEach((card, index) => {
                 const col = document.createElement('div');
                 col.className = 'col';
                 
-                const cardElement = document.createElement('div');
-                cardElement.className = 'card h-100 border-0 bg-transparent';
-                
-                if (card.noEmbed) {
-                    // Para sites que não permitem embed (como Downdetector)
-                    cardElement.innerHTML = `
+                const cardHtml = `
+                    <div class="card h-100 border-0 bg-transparent">
                         <div class="card-container" data-url="${card.url}" data-index="${index}">
-                            <div class="unavailable-message">
-                                <div>
-                                    <i class="fas ${card.icon} fa-3x mb-3"></i>
-                                    <p>Pré-visualização não disponível<br>Clique para abrir em tela cheia</p>
-                                </div>
-                            </div>
+                            ${getCardContent(card)}
                             <div class="card-title">
-                                <i class="fas ${card.icon}"></i>${card.title}
+                                <i class="fas ${card.icon}"></i> ${card.title}
                             </div>
-                            <div class="iframe-overlay"></div>
                         </div>
-                    `;
-                } else {
-                    // Para sites que permitem embed
-                    cardElement.innerHTML = `
-                        <div class="card-container" data-url="${card.url}" data-index="${index}">
-                            <iframe class="card-iframe" src="${card.url}" loading="lazy"></iframe>
-                            <div class="card-title">
-                                <i class="fas ${card.icon}"></i>${card.title}
-                            </div>
-                            <div class="iframe-overlay"></div>
-                        </div>
-                    `;
-                }
+                    </div>
+                `;
                 
-                col.appendChild(cardElement);
+                col.innerHTML = cardHtml;
                 container.appendChild(col);
             });
-            
-            // Adiciona evento de clique aos overlays
-            document.querySelectorAll('.iframe-overlay').forEach(overlay => {
-                overlay.addEventListener('click', function() {
-                    const card = this.closest('.card-container');
-                    const url = card.getAttribute('data-url');
+        }
+        
+        // Retorna o conteúdo apropriado para cada card
+        function getCardContent(card) {
+            if (card.allowEmbed) {
+                return `<iframe class="card-iframe" src="${card.url}" loading="lazy"></iframe>`;
+            } else if (card.screenshot) {
+                return `
+                    <div class="screenshot-container">
+                        <img src="https://api.screenshotone.com/take?url=${encodeURIComponent(card.url)}&viewport_width=1200&viewport_height=800&delay=2000&block_cookie_banners=true&block_chats=true&block_ads=true" 
+                             class="screenshot-img" 
+                             alt="${card.title}">
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="unavailable-message">
+                        <div>
+                            <i class="fas ${card.icon} fa-2x mb-2"></i>
+                            <p>Clique para abrir em tela cheia</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Configura os event listeners
+        function setupEventListeners() {
+            // Clique nos cards
+            document.querySelectorAll('.card-container').forEach(card => {
+                card.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
                     openFullscreen(url);
                 });
             });
             
-            // Adiciona evento ao botão de fechar
+            // Botão de fechar
             document.querySelector('.close-btn').addEventListener('click', closeFullscreen);
-            
-            // Inicia o refresh automático dos iframes
-            setInterval(refreshAllIframes, refreshIntervalTime);
-        });
+        }
         
-        // Função para abrir em tela cheia
+        // Abre em tela cheia
         function openFullscreen(url) {
-            const fullscreenView = document.querySelector('.fullscreen-view');
             const iframe = document.getElementById('fullscreen-iframe');
-            
             iframe.src = url;
-            fullscreenView.style.display = 'block';
+            document.querySelector('.fullscreen-view').style.display = 'block';
             
-            // Inicia o refresh automático
-            startAutoRefresh(iframe);
+            // Salva o estado
+            currentState.fullscreenUrl = url;
+            saveState();
         }
         
-        // Função para fechar tela cheia
+        // Fecha a tela cheia
         function closeFullscreen() {
-            const fullscreenView = document.querySelector('.fullscreen-view');
-            const iframe = document.getElementById('fullscreen-iframe');
+            document.querySelector('.fullscreen-view').style.display = 'none';
+            document.getElementById('fullscreen-iframe').src = '';
             
-            iframe.src = '';
-            fullscreenView.style.display = 'none';
-            
-            // Para o refresh automático
-            stopAutoRefresh();
+            // Limpa o estado
+            currentState.fullscreenUrl = null;
+            saveState();
         }
         
-        // Atualiza todos os iframes dos cards
-        function refreshAllIframes() {
+        // Atualiza todos os iframes e screenshots
+        function refreshContent() {
+            // Atualiza iframes
             document.querySelectorAll('.card-iframe').forEach(iframe => {
                 iframe.src = iframe.src;
             });
             
-            // Atualiza o iframe em tela cheia se estiver visível
-            const fullscreenIframe = document.getElementById('fullscreen-iframe');
-            if (document.querySelector('.fullscreen-view').style.display === 'block') {
+            // Atualiza screenshots
+            document.querySelectorAll('.screenshot-img').forEach(img => {
+                const now = new Date().getTime();
+                img.src = img.src.split('?')[0] + `?t=${now}`;
+            });
+            
+            // Atualiza iframe em tela cheia se estiver aberto
+            if (currentState.fullscreenUrl) {
+                const fullscreenIframe = document.getElementById('fullscreen-iframe');
                 fullscreenIframe.src = fullscreenIframe.src;
             }
             
-            updateRefreshTime();
-            console.log('Iframes atualizados em:', new Date().toLocaleTimeString());
+            console.log('Conteúdo atualizado em:', new Date().toLocaleTimeString());
         }
         
-        // Inicia o refresh automático para o iframe em tela cheia
-        function startAutoRefresh(iframe) {
-            // Atualiza imediatamente ao abrir
-            updateRefreshTime();
+        // Inicia o auto-refresh
+        function startAutoRefresh() {
+            // Atualiza imediatamente
+            refreshContent();
             
-            // Configura o intervalo de refresh
-            refreshInterval = setInterval(() => {
-                iframe.src = iframe.src;
-                updateRefreshTime();
-                console.log('Iframe em tela cheia atualizado em:', new Date().toLocaleTimeString());
-            }, refreshIntervalTime);
-        }
-        
-        // Para o refresh automático
-        function stopAutoRefresh() {
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
-        }
-        
-        // Atualiza o indicador de tempo
-        function updateRefreshTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            const statusText = `Sincronizado: ${timeString} | Status: Operacional`;
-            document.querySelector('.refresh-time').textContent = statusText;
+            // Configura o intervalo (5 minutos)
+            setInterval(refreshContent, 5 * 60 * 1000);
         }
     </script>
 </body>
