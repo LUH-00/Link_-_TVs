@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Link TVs</title>
+    <title>Link TVs - Clique em Qualquer Parte</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -65,6 +65,7 @@
             height: 200px;
             border: none;
             background: #111;
+            pointer-events: none; /* Permite clicar através do iframe */
         }
         
         .card-title {
@@ -77,6 +78,7 @@
             padding: 15px;
             text-align: center;
             font-family: 'Orbitron', sans-serif;
+            z-index: 2; /* Garante que o título fique acima do overlay */
         }
         
         .fullscreen-view {
@@ -141,15 +143,14 @@
             padding: 20px;
         }
         
-        .screenshot-container {
-            height: 200px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .screenshot-img {
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: auto;
+            height: 100%;
+            z-index: 1;
+            opacity: 0; /* Torna invisível mas ainda clicável */
         }
     </style>
 </head>
@@ -188,8 +189,7 @@
                 title: "Downdetector",
                 url: "https://downdetector.com.br",
                 icon: "fa-triangle-exclamation",
-                allowEmbed: false,
-                screenshot: true
+                allowEmbed: false
             },
             {
                 title: "Accuweather",
@@ -199,29 +199,11 @@
             }
         ];
         
-        // Armazenamento do estado atual
-        let currentState = {
-            fullscreenUrl: null,
+        // Armazenamento do estado
+        const state = {
+            currentFullscreen: null,
             iframeStates: {}
         };
-        
-        // Carrega o estado salvo
-        function loadState() {
-            const savedState = localStorage.getItem('tvDashboardState');
-            if (savedState) {
-                currentState = JSON.parse(savedState);
-                
-                // Se havia uma tela cheia aberta, restaura
-                if (currentState.fullscreenUrl) {
-                    openFullscreen(currentState.fullscreenUrl);
-                }
-            }
-        }
-        
-        // Salva o estado atual
-        function saveState() {
-            localStorage.setItem('tvDashboardState', JSON.stringify(currentState));
-        }
         
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
@@ -242,7 +224,16 @@
                 const cardHtml = `
                     <div class="card h-100 border-0 bg-transparent">
                         <div class="card-container" data-url="${card.url}" data-index="${index}">
-                            ${getCardContent(card)}
+                            ${card.allowEmbed ? 
+                                `<iframe class="card-iframe" id="iframe-${index}" src="${card.url}" loading="lazy"></iframe>` : 
+                                `<div class="unavailable-message">
+                                    <div>
+                                        <i class="fas ${card.icon} fa-2x mb-2"></i>
+                                        <p>Clique para abrir em tela cheia</p>
+                                    </div>
+                                </div>`
+                            }
+                            <div class="card-overlay"></div>
                             <div class="card-title">
                                 <i class="fas ${card.icon}"></i> ${card.title}
                             </div>
@@ -255,37 +246,35 @@
             });
         }
         
-        // Retorna o conteúdo apropriado para cada card
-        function getCardContent(card) {
-            if (card.allowEmbed) {
-                return `<iframe class="card-iframe" src="${card.url}" loading="lazy"></iframe>`;
-            } else if (card.screenshot) {
-                return `
-                    <div class="screenshot-container">
-                        <img src="https://api.screenshotone.com/take?url=${encodeURIComponent(card.url)}&viewport_width=1200&viewport_height=800&delay=2000&block_cookie_banners=true&block_chats=true&block_ads=true" 
-                             class="screenshot-img" 
-                             alt="${card.title}">
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="unavailable-message">
-                        <div>
-                            <i class="fas ${card.icon} fa-2x mb-2"></i>
-                            <p>Clique para abrir em tela cheia</p>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-        
         // Configura os event listeners
         function setupEventListeners() {
-            // Clique nos cards
-            document.querySelectorAll('.card-container').forEach(card => {
-                card.addEventListener('click', function() {
-                    const url = this.getAttribute('data-url');
-                    openFullscreen(url);
+            // Clique nos overlays dos cards
+            document.querySelectorAll('.card-overlay').forEach(overlay => {
+                overlay.addEventListener('click', function(e) {
+                    // Verifica se o clique não veio de um elemento filho
+                    if (e.target === this) {
+                        const card = this.closest('.card-container');
+                        const url = card.getAttribute('data-url');
+                        const index = card.getAttribute('data-index');
+                        
+                        // Salva o estado do iframe antes de abrir em tela cheia
+                        if (cardsConfig[index].allowEmbed) {
+                            const iframe = document.getElementById(`iframe-${index}`);
+                            if (iframe && iframe.contentWindow) {
+                                try {
+                                    state.iframeStates[index] = {
+                                        scrollY: iframe.contentWindow.scrollY,
+                                        scrollX: iframe.contentWindow.scrollX
+                                    };
+                                    localStorage.setItem('tvDashboardState', JSON.stringify(state));
+                                } catch (e) {
+                                    console.log('Não foi possível salvar a posição:', e);
+                                }
+                            }
+                        }
+                        
+                        openFullscreen(url);
+                    }
                 });
             });
             
@@ -299,9 +288,9 @@
             iframe.src = url;
             document.querySelector('.fullscreen-view').style.display = 'block';
             
-            // Salva o estado
-            currentState.fullscreenUrl = url;
-            saveState();
+            // Atualiza o estado
+            state.currentFullscreen = { url };
+            localStorage.setItem('tvDashboardState', JSON.stringify(state));
         }
         
         // Fecha a tela cheia
@@ -309,28 +298,44 @@
             document.querySelector('.fullscreen-view').style.display = 'none';
             document.getElementById('fullscreen-iframe').src = '';
             
-            // Limpa o estado
-            currentState.fullscreenUrl = null;
-            saveState();
+            // Atualiza o estado
+            state.currentFullscreen = null;
+            localStorage.setItem('tvDashboardState', JSON.stringify(state));
         }
         
-        // Atualiza todos os iframes e screenshots
+        // Atualiza todos os iframes mantendo a posição
         function refreshContent() {
-            // Atualiza iframes
-            document.querySelectorAll('.card-iframe').forEach(iframe => {
-                iframe.src = iframe.src;
-            });
-            
-            // Atualiza screenshots
-            document.querySelectorAll('.screenshot-img').forEach(img => {
-                const now = new Date().getTime();
-                img.src = img.src.split('?')[0] + `?t=${now}`;
+            // Atualiza iframes nos cards
+            cardsConfig.forEach((card, index) => {
+                if (card.allowEmbed) {
+                    const iframe = document.getElementById(`iframe-${index}`);
+                    if (iframe) {
+                        // Salva a posição atual
+                        const scrollY = state.iframeStates[index]?.scrollY || 0;
+                        
+                        // Recarrega o iframe
+                        const currentSrc = iframe.src;
+                        iframe.src = '';
+                        iframe.src = currentSrc;
+                        
+                        // Restaura a posição após carregar
+                        iframe.onload = function() {
+                            setTimeout(() => {
+                                try {
+                                    iframe.contentWindow.scrollTo(0, scrollY);
+                                } catch (e) {
+                                    console.log('Não foi possível restaurar a posição:', e);
+                                }
+                            }, 500);
+                        };
+                    }
+                }
             });
             
             // Atualiza iframe em tela cheia se estiver aberto
-            if (currentState.fullscreenUrl) {
-                const fullscreenIframe = document.getElementById('fullscreen-iframe');
-                fullscreenIframe.src = fullscreenIframe.src;
+            if (state.currentFullscreen) {
+                const iframe = document.getElementById('fullscreen-iframe');
+                iframe.src = iframe.src;
             }
             
             console.log('Conteúdo atualizado em:', new Date().toLocaleTimeString());
@@ -343,6 +348,19 @@
             
             // Configura o intervalo (5 minutos)
             setInterval(refreshContent, 5 * 60 * 1000);
+        }
+        
+        // Carrega o estado salvo
+        function loadState() {
+            const savedState = localStorage.getItem('tvDashboardState');
+            if (savedState) {
+                Object.assign(state, JSON.parse(savedState));
+                
+                // Restaura a tela cheia se estava aberta
+                if (state.currentFullscreen) {
+                    openFullscreen(state.currentFullscreen.url);
+                }
+            }
         }
     </script>
 </body>
